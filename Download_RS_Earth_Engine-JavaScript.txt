@@ -1,0 +1,238 @@
+//Google Earth Engine for downaloading Environmental variables for modeling Tsetse habitats
+//in Kenya from 2017-2020
+//Javascript
+
+// Create AOI to cover Kenya
+var AOI = geometry;
+
+//// Environmental Variables /// 
+var lstCollection_modisDay = ee.ImageCollection("MODIS/006/MOD11A1").select('LST_Day_1km').filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var lstCollection_modisNight = ee.ImageCollection("MODIS/006/MOD11A1").select('LST_Night_1km').filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var ndviCollection_modis = ee.ImageCollection("MODIS/061/MOD13A1").filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var air_temperature_ERA5 = ee.ImageCollection("ECMWF/ERA5_LAND/HOURLY").select('temperature_2m').filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var soil_temperature_ERA5 = ee.ImageCollection("ECMWF/ERA5_LAND/HOURLY").select('soil_temperature_level_1').filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var total_precipitation_ERA5 = ee.ImageCollection("ECMWF/ERA5_LAND/HOURLY").select('total_precipitation').filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var prec = ee.ImageCollection("IDAHO_EPSCOR/TERRACLIMATE").select("pr").filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var surf_soil_moisture_SMAP = ee.ImageCollection('NASA_USDA/HSL/SMAP10KM_soil_moisture').select('ssm').filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var smoist = ee.ImageCollection("IDAHO_EPSCOR/TERRACLIMATE").select("soil").filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var subsurf_soil_moisture_SMAP = ee.ImageCollection('NASA_USDA/HSL/SMAP10KM_soil_moisture').select('susm').filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var surface_runoff_ERA5 = ee.ImageCollection("ECMWF/ERA5_LAND/HOURLY").select('surface_runoff').filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var skin_temperature_ERA5 = ee.ImageCollection("ECMWF/ERA5_LAND/HOURLY").select('skin_temperature').filterBounds(AOI).filterDate('2017-01-01', '2020-12-31');
+var sand_combat = ee.Image("ISDASOIL/Africa/v1/sand_content").select('mean_0_20').clip(AOI).rename('sand');
+
+
+// load the image collections for the various datasets; timelines  = 2018 to 2021
+var lst_day = ee.ImageCollection("MODIS/006/MOD11A1").select('LST_Day_1km').filterDate('2018-01-01', '2021-12-31');
+var lst_night = ee.ImageCollection("MODIS/006/MOD11A1").select('LST_Night_1km').filterDate('2018-01-01', '2021-12-31');
+var ndvi = ee.ImageCollection("MODIS/061/MOD13A1").select('NDVI').filterDate('2018-01-01', '2021-12-31');
+var smoist = ee.ImageCollection("IDAHO_EPSCOR/TERRACLIMATE").select("soil").filterDate("2018-01-01","2021-12-31");
+var prec = ee.ImageCollection("IDAHO_EPSCOR/TERRACLIMATE").select("pr").filterDate("2018-01-01","2021-12-31");
+var dem = ee.Image("USGS/SRTMGL1_003");
+
+///// LST Day /////
+var maxLSTDay_17 = lstCollection_modisDay.filterDate('2017-01-01', '2017-12-31').max().clip(AOI).rename('maxLSTDay17');
+var minLSTDay_17 = lstCollection_modisDay.filterDate('2017-01-01', '2017-12-31').min().clip(AOI).rename('minLSTDay17');
+var medLSTDay_17 = lstCollection_modisDay.filterDate('2017-01-01', '2017-12-31').median().clip(AOI).rename('medLSTDay17');
+
+var maxLSTDay_18 = lstCollection_modisDay.filterDate('2018-01-01', '2018-12-31').max().clip(AOI).rename('maxLSTDay18');
+var minLSTDay_18 = lstCollection_modisDay.filterDate('2018-01-01', '2018-12-31').min().clip(AOI).rename('minLSTDay18');
+var medLSTDay_18 = lstCollection_modisDay.filterDate('2018-01-01', '2018-12-31').median().clip(AOI).rename('medLSTDay18');
+
+var maxLSTDay_19 = lstCollection_modisDay.filterDate('2019-01-01', '2019-12-31').max().clip(AOI).rename('maxLSTDay19');
+var minLSTDay_19 = lstCollection_modisDay.filterDate('2019-01-01', '2019-12-31').min().clip(AOI).rename('minLSTDay19');
+var medLSTDay_19 = lstCollection_modisDay.filterDate('2019-01-01', '2019-12-31').median().clip(AOI).rename('medLSTDay19');
+
+var maxLSTDay_20 = lstCollection_modisDay.filterDate('2020-01-01', '2020-12-31').max().clip(AOI).rename('maxLSTDay20');
+var minLSTDay_20 = lstCollection_modisDay.filterDate('2020-01-01', '2020-12-31').min().clip(AOI).rename('minLSTDay20');
+var medLSTDay_20 = lstCollection_modisDay.filterDate('2020-01-01', '2020-12-31').median().clip(AOI).rename('medLSTDay20');
+
+///// LST Night/////
+var maxLSTNight_17 = lstCollection_modisNight.filterDate('2017-01-01', '2017-12-31').max().clip(AOI).rename('maxLSTNight17');
+var minLSTNight_17 = lstCollection_modisNight.filterDate('2017-01-01', '2017-12-31').min().clip(AOI).rename('minLSTNight17');
+var medLSTNight_17 = lstCollection_modisNight.filterDate('2017-01-01', '2017-12-31').median().clip(AOI).rename('medLSTNight17');
+
+var maxLSTNight_18 = lstCollection_modisNight.filterDate('2018-01-01', '2018-12-31').max().clip(AOI).rename('maxLSTNight18');
+var minLSTNight_18 = lstCollection_modisNight.filterDate('2018-01-01', '2018-12-31').min().clip(AOI).rename('minLSTNight18');
+var medLSTNight_18 = lstCollection_modisNight.filterDate('2018-01-01', '2018-12-31').median().clip(AOI).rename('medLSTNight18');
+
+var maxLSTNight_19 = lstCollection_modisNight.filterDate('2019-01-01', '2019-12-31').max().clip(AOI).rename('maxLSTNight19');
+var minLSTNight_19 = lstCollection_modisNight.filterDate('2019-01-01', '2019-12-31').min().clip(AOI).rename('minLSTNight19');
+var medLSTNight_19 = lstCollection_modisNight.filterDate('2019-01-01', '2019-12-31').median().clip(AOI).rename('medLSTNight19');
+
+var maxLSTNight_20 = lstCollection_modisNight.filterDate('2020-01-01', '2020-12-31').max().clip(AOI).rename('maxLSTNight20');
+var minLSTNight_20 = lstCollection_modisNight.filterDate('2020-01-01', '2020-12-31').min().clip(AOI).rename('minLSTNight20');
+var medLSTNight_20 = lstCollection_modisNight.filterDate('2020-01-01', '2020-12-31').median().clip(AOI).rename('medLSTNight20');
+
+///// NDVI /////
+var maxNDVI_17 = ndviCollection_modis.filterDate('2017-01-01', '2017-12-31').max().clip(AOI).rename('maxNDVI17');
+var minNDVI_17 = ndviCollection_modis.filterDate('2017-01-01', '2017-12-31').min().clip(AOI).rename('minNDVI17');
+var medNDVI_17 = ndviCollection_modis.filterDate('2017-01-01', '2017-12-31').median().clip(AOI).rename('medNDVI17');
+
+var maxNDVI_18 = ndviCollection_modis.filterDate('2018-01-01', '2018-12-31').max().clip(AOI).rename('maxNDVI18');
+var minNDVI_18 = ndviCollection_modis.filterDate('2018-01-01', '2018-12-31').min().clip(AOI).rename('minNDVI18');
+var medNDVI_18 = ndviCollection_modis.filterDate('2018-01-01', '2018-12-31').median().clip(AOI).rename('medNDVI18');
+
+var maxNDVI_19 = ndviCollection_modis.filterDate('2019-01-01', '2019-12-31').max().clip(AOI).rename('maxNDVI19');
+var minNDVI_19 = ndviCollection_modis.filterDate('2019-01-01', '2019-12-31').min().clip(AOI).rename('minNDVI19');
+var medNDVI_19 = ndviCollection_modis.filterDate('2019-01-01', '2019-12-31').median().clip(AOI).rename('medNDVI19');
+
+var maxNDVI_20 = ndviCollection_modis.filterDate('2020-01-01', '2020-12-31').max().clip(AOI).rename('maxNDVI20');
+var minNDVI_20 = ndviCollection_modis.filterDate('2020-01-01', '2020-12-31').min().clip(AOI).rename('minNDVI20');
+var medNDVI_20 = ndviCollection_modis.filterDate('2020-01-01', '2020-12-31').median().clip(AOI).rename('medNDVI20');
+
+///// Air temp /////
+var maxAIRTEMP_17 = air_temperature_ERA5.filterDate('2017-01-01', '2017-12-31').max().clip(AOI).rename('maxAIRTEMP17');
+var minAIRTEMP_17 = air_temperature_ERA5.filterDate('2017-01-01', '2017-12-31').min().clip(AOI).rename('minAIRTEMP17');
+var medAIRTEMP_17 = air_temperature_ERA5.filterDate('2017-01-01', '2017-12-31').median().clip(AOI).rename('medAIRTEMP17');
+
+var maxAIRTEMP_18 = air_temperature_ERA5.filterDate('2018-01-01', '2018-12-31').max().clip(AOI).rename('maxAIRTEMP18');
+var minAIRTEMP_18 = air_temperature_ERA5.filterDate('2018-01-01', '2018-12-31').min().clip(AOI).rename('minAIRTEMP18');
+var medAIRTEMP_18 = air_temperature_ERA5.filterDate('2018-01-01', '2018-12-31').median().clip(AOI).rename('medAIRTEMP18');
+
+var maxAIRTEMP_19 = air_temperature_ERA5.filterDate('2019-01-01', '2019-12-31').max().clip(AOI).rename('maxAIRTEMP19');
+var minAIRTEMP_19 = air_temperature_ERA5.filterDate('2019-01-01', '2019-12-31').min().clip(AOI).rename('minAIRTEMP19');
+var medAIRTEMP_19 = air_temperature_ERA5.filterDate('2019-01-01', '2019-12-31').median().clip(AOI).rename('medAIRTEMP19');
+
+var maxAIRTEMP_20 = air_temperature_ERA5.filterDate('2020-01-01', '2020-12-31').max().clip(AOI).rename('maxAIRTEMP20');
+var minAIRTEMP_20 = air_temperature_ERA5.filterDate('2020-01-01', '2020-12-31').min().clip(AOI).rename('minAIRTEMP20');
+var medAIRTEMP_20 = air_temperature_ERA5.filterDate('2020-01-01', '2020-12-31').median().clip(AOI).rename('medAIRTEMP20');
+
+///// Soil temp /////
+var maxSoilTEMP_17 = soil_temperature_ERA5.filterDate('2017-01-01', '2017-12-31').max().clip(AOI).rename('maxSoilTEMP17');
+var minSoilTEMP_17 = soil_temperature_ERA5.filterDate('2017-01-01', '2017-12-31').min().clip(AOI).rename('minSoilTEMP17');
+var medSoilTEMP_17 = soil_temperature_ERA5.filterDate('2017-01-01', '2017-12-31').median().clip(AOI).rename('medSoilTEMP17');
+
+var maxSoilTEMP_18 = soil_temperature_ERA5.filterDate('2018-01-01', '2018-12-31').max().clip(AOI).rename('maxSoilTEMP18');
+var minSoilTEMP_18 = soil_temperature_ERA5.filterDate('2018-01-01', '2018-12-31').min().clip(AOI).rename('minSoilTEMP18');
+var medSoilTEMP_18 = soil_temperature_ERA5.filterDate('2018-01-01', '2018-12-31').median().clip(AOI).rename('medSoilTEMP18');
+
+var maxSoilTEMP_19 = soil_temperature_ERA5.filterDate('2019-01-01', '2019-12-31').max().clip(AOI).rename('maxSoilTEMP19');
+var minSoilTEMP_19 = soil_temperature_ERA5.filterDate('2019-01-01', '2019-12-31').min().clip(AOI).rename('minSoilTEMP19');
+var medSoilTEMP_19 = soil_temperature_ERA5.filterDate('2019-01-01', '2019-12-31').median().clip(AOI).rename('medSoilTEMP19');
+
+var maxSoilTEMP_20 = soil_temperature_ERA5.filterDate('2020-01-01', '2020-12-31').max().clip(AOI).rename('maxSoilTEMP20');
+var minSoilTEMP_20 = soil_temperature_ERA5.filterDate('2020-01-01', '2020-12-31').min().clip(AOI).rename('minSoilTEMP20');
+var medSoilTEMP_20 = soil_temperature_ERA5.filterDate('2020-01-01', '2020-12-31').median().clip(AOI).rename('medSoilTEMP20');
+
+///// Tot Prec /////
+var sumTOTPREC_17 = total_precipitation_ERA5.filterDate('2017-01-01', '2017-12-31').sum().clip(AOI).rename('sumTOTPREC17');
+var sumTOTPREC_18 = total_precipitation_ERA5.filterDate('2018-01-01', '2018-12-31').sum().clip(AOI).rename('sumTOTPREC18');
+var sumTOTPREC_19 = total_precipitation_ERA5.filterDate('2019-01-01', '2019-12-31').sum().clip(AOI).rename('sumTOTPREC19');
+var sumTOTPREC_20 = total_precipitation_ERA5.filterDate('2020-01-01', '2020-12-31').sum().clip(AOI).rename('sumTOTPREC20');
+
+///// Surface Soil Moist /////
+var maxSSMOIST_17 = surf_soil_moisture_SMAP.filterDate('2017-01-01', '2017-12-31').max().clip(AOI).rename('maxSSMOIST17');
+var minSSMOIST_17 = surf_soil_moisture_SMAP.filterDate('2017-01-01', '2017-12-31').min().clip(AOI).rename('minSSMOIST17');
+var medSSMOIST_17 = surf_soil_moisture_SMAP.filterDate('2017-01-01', '2017-12-31').median().clip(AOI).rename('medSSMOIST17');
+
+var maxSSMOIST_18 = surf_soil_moisture_SMAP.filterDate('2018-01-01', '2018-12-31').max().clip(AOI).rename('maxSSMOIST18');
+var minSSMOIST_18 = surf_soil_moisture_SMAP.filterDate('2018-01-01', '2018-12-31').min().clip(AOI).rename('minSSMOIST18');
+var medSSMOIST_18 = surf_soil_moisture_SMAP.filterDate('2018-01-01', '2018-12-31').median().clip(AOI).rename('medSSMOIST18');
+
+var maxSSMOIST_19 = surf_soil_moisture_SMAP.filterDate('2019-01-01', '2019-12-31').max().clip(AOI).rename('maxSSMOIST19');
+var minSSMOIST_19 = surf_soil_moisture_SMAP.filterDate('2019-01-01', '2019-12-31').min().clip(AOI).rename('minSSMOIST19');
+var medSSMOIST_19 = surf_soil_moisture_SMAP.filterDate('2019-01-01', '2019-12-31').median().clip(AOI).rename('medSSMOIST19');
+
+var maxSSMOIST_20 = surf_soil_moisture_SMAP.filterDate('2020-01-01', '2020-12-31').max().clip(AOI).rename('maxSSMOIST20');
+var minSSMOIST_20 = surf_soil_moisture_SMAP.filterDate('2020-01-01', '2020-12-31').min().clip(AOI).rename('minSSMOIST20');
+var medSSMOIST_20 = surf_soil_moisture_SMAP.filterDate('2020-01-01', '2020-12-31').median().clip(AOI).rename('medSSMOIST20');
+
+///// Sub Surface Soil Moist /////
+var maxSbSMOIST_17 = subsurf_soil_moisture_SMAP.filterDate('2017-01-01', '2017-12-31').max().clip(AOI).rename('maxSbSMOIST17');
+var minSbSMOIST_17 = subsurf_soil_moisture_SMAP.filterDate('2017-01-01', '2017-12-31').min().clip(AOI).rename('minSbSMOIST17');
+var medSbSMOIST_17 = subsurf_soil_moisture_SMAP.filterDate('2017-01-01', '2017-12-31').median().clip(AOI).rename('medSbSMOIST17');
+
+var maxSbSMOIST_18 = subsurf_soil_moisture_SMAP.filterDate('2018-01-01', '2018-12-31').max().clip(AOI).rename('maxSbSMOIST18');
+var minSbSMOIST_18 = subsurf_soil_moisture_SMAP.filterDate('2018-01-01', '2018-12-31').min().clip(AOI).rename('minSbSMOIST18');
+var medSbSMOIST_18 = subsurf_soil_moisture_SMAP.filterDate('2018-01-01', '2018-12-31').median().clip(AOI).rename('medSbSMOIST18');
+
+var maxSbSMOIST_19 = subsurf_soil_moisture_SMAP.filterDate('2019-01-01', '2019-12-31').max().clip(AOI).rename('maxSbSMOIST19');
+var minSbSMOIST_19 = subsurf_soil_moisture_SMAP.filterDate('2019-01-01', '2019-12-31').min().clip(AOI).rename('minSbSMOIST19');
+var medSbSMOIST_19 = subsurf_soil_moisture_SMAP.filterDate('2019-01-01', '2019-12-31').median().clip(AOI).rename('medSbSMOIST19');
+
+var maxSbSMOIST_20 = subsurf_soil_moisture_SMAP.filterDate('2020-01-01', '2020-12-31').max().clip(AOI).rename('maxSbSMOIST20');
+var minSbSMOIST_20 = subsurf_soil_moisture_SMAP.filterDate('2020-01-01', '2020-12-31').min().clip(AOI).rename('minSbSMOIST20');
+var medSbSMOIST_20 = subsurf_soil_moisture_SMAP.filterDate('2020-01-01', '2020-12-31').median().clip(AOI).rename('medSbSMOIST20');
+
+///// Surface Runoff /////
+var sumSurfRunoff_17 = surface_runoff_ERA5.filterDate('2017-01-01', '2017-12-31').sum().clip(AOI).rename('sumSurfRunoff17');
+var sumSurfRunoff_18 = surface_runoff_ERA5.filterDate('2018-01-01', '2018-12-31').sum().clip(AOI).rename('sumSurfRunoff18');
+var sumSurfRunoff_19 = surface_runoff_ERA5.filterDate('2019-01-01', '2019-12-31').sum().clip(AOI).rename('sumSurfRunoff19');
+var sumSurfRunoff_20 = surface_runoff_ERA5.filterDate('2020-01-01', '2020-12-31').sum().clip(AOI).rename('sumSurfRunoff20');
+
+///// Skin Temperature /////
+var maxSkinTEMP_17 = skin_temperature_ERA5.filterDate('2017-01-01', '2017-12-31').max().clip(AOI).rename('maxSkinTEMP17');
+var minSkinTEMP_17 = skin_temperature_ERA5.filterDate('2017-01-01', '2017-12-31').min().clip(AOI).rename('minSkinTEMP17');
+var medSkinTEMP_17 = skin_temperature_ERA5.filterDate('2017-01-01', '2017-12-31').median().clip(AOI).rename('medSkinTEMP17');
+
+var maxSkinTEMP_18 = skin_temperature_ERA5.filterDate('2018-01-01', '2018-12-31').max().clip(AOI).rename('maxSkinTEMP18');
+var minSkinTEMP_18 = skin_temperature_ERA5.filterDate('2018-01-01', '2018-12-31').min().clip(AOI).rename('minSkinTEMP18');
+var medSkinTEMP_18 = skin_temperature_ERA5.filterDate('2018-01-01', '2018-12-31').median().clip(AOI).rename('medSkinTEMP18');
+
+var maxSkinTEMP_19 = skin_temperature_ERA5.filterDate('2019-01-01', '2019-12-31').max().clip(AOI).rename('maxSkinTEMP19');
+var minSkinTEMP_19 = skin_temperature_ERA5.filterDate('2019-01-01', '2019-12-31').min().clip(AOI).rename('minSkinTEMP19');
+var medSkinTEMP_19 = skin_temperature_ERA5.filterDate('2019-01-01', '2019-12-31').median().clip(AOI).rename('medSkinTEMP19');
+
+var maxSkinTEMP_20 = skin_temperature_ERA5.filterDate('2020-01-01', '2020-12-31').max().clip(AOI).rename('maxSkinTEMP20');
+var minSkinTEMP_20 = skin_temperature_ERA5.filterDate('2020-01-01', '2020-12-31').min().clip(AOI).rename('minSkinTEMP20');
+var medSkinTEMP_20 = skin_temperature_ERA5.filterDate('2020-01-01', '2020-12-31').median().clip(AOI).rename('medSkinTEMP20');
+
+////// Digital Elevation Model //////
+
+var elevation = ee.Image('USGS/SRTMGL1_003').select('elevation');
+
+
+Map.addLayer (elevation.clip(AOI), {min: 0, max: 6500}, 'DEM');
+print (maxSkinTEMP_20);
+
+///Stack the variables 
+
+var lst_day_combat = maxLSTDay_17.addBands(minLSTDay_17).addBands(maxLSTDay_18).addBands(minLSTDay_18)
+                .addBands(maxLSTDay_19).addBands(minLSTDay_19).addBands(maxLSTDay_20)
+                .addBands(minLSTDay_20);
+var lst_med_combat = medLSTDay_17.addBands(medLSTDay_18).addBands(medLSTDay_19).addBands(medLSTDay_20)
+                        .addBands(medLSTNight_17).addBands(medLSTNight_18).addBands(medLSTNight_19).addBands(medLSTNight_20);             
+                
+var lst_night_combat = maxLSTNight_17.addBands(minLSTNight_17).addBands(maxLSTNight_18).addBands(minLSTNight_18)
+                .addBands(maxLSTNight_19).addBands(minLSTNight_19).addBands(maxLSTNight_20)
+                .addBands(minLSTNight_20);
+                
+var ndvi_combat = maxNDVI_17.addBands(minNDVI_17).addBands(medNDVI_17).addBands(maxNDVI_18).addBands(minNDVI_18)
+                .addBands(medNDVI_18).addBands(maxNDVI_19).addBands(minNDVI_19).addBands(medNDVI_19).addBands(maxNDVI_20)
+                .addBands(minNDVI_20).addBands(medNDVI_20);
+                
+var airtemp_combat = maxAIRTEMP_17.addBands(minAIRTEMP_17).addBands(medAIRTEMP_17).addBands(maxAIRTEMP_18).addBands(minAIRTEMP_18)
+                .addBands(medAIRTEMP_18).addBands(maxAIRTEMP_19).addBands(minAIRTEMP_19).addBands(medAIRTEMP_19).addBands(maxAIRTEMP_20)
+                .addBands(minAIRTEMP_20).addBands(medAIRTEMP_20);
+                
+var soiltemp_combat = maxSoilTEMP_17.addBands(minSoilTEMP_17).addBands(medSoilTEMP_17).addBands(maxSoilTEMP_18).addBands(minSoilTEMP_18)
+                .addBands(medSoilTEMP_18).addBands(maxSoilTEMP_19).addBands(minSoilTEMP_19).addBands(medSoilTEMP_19).addBands(maxSoilTEMP_20)
+                .addBands(minSoilTEMP_20).addBands(medSoilTEMP_20);               
+                
+var ssmoist_combat = maxSSMOIST_17.addBands(minSSMOIST_17).addBands(medSSMOIST_17).addBands(maxSSMOIST_18).addBands(minSSMOIST_18)
+                .addBands(medSSMOIST_18).addBands(maxSSMOIST_19).addBands(minSSMOIST_19).addBands(medSSMOIST_19).addBands(maxSSMOIST_20)
+                .addBands(minSSMOIST_20).addBands(medSSMOIST_20);
+                
+var sbsmoist_combat = maxSbSMOIST_17.addBands(minSbSMOIST_17).addBands(medSbSMOIST_17).addBands(maxSbSMOIST_18).addBands(minSbSMOIST_18)
+                .addBands(medSbSMOIST_18).addBands(maxSbSMOIST_19).addBands(minSbSMOIST_19).addBands(medSbSMOIST_19).addBands(maxSbSMOIST_20)
+                .addBands(minSbSMOIST_20).addBands(medSbSMOIST_20);
+
+var totprec_combat = sumTOTPREC_17.addBands(sumTOTPREC_18).addBands(sumTOTPREC_19).addBands(sumTOTPREC_20);
+
+////////var soil_combat = silt_ISDA.addBands(clay_ISDA).addBands(sand_ISDA);
+
+var surfRunoff_combat = sumSurfRunoff_17.addBands(sumSurfRunoff_18).addBands(sumSurfRunoff_19).addBands(sumSurfRunoff_20);
+                
+var skintemp_combat = maxSkinTEMP_17.addBands(minSkinTEMP_17).addBands(medSkinTEMP_17).addBands(maxSkinTEMP_18).addBands(minSkinTEMP_18)
+                .addBands(medSkinTEMP_18).addBands(maxSkinTEMP_19).addBands(minSkinTEMP_19).addBands(medSkinTEMP_19).addBands(maxSkinTEMP_20)
+                .addBands(minSkinTEMP_20).addBands(medSkinTEMP_20);                
+
+
+print(sand_combat);
+/// Exporting the dataset to drive
+Export.image.toDrive({
+image: elevation,
+description: 'Elevation',
+scale: 1000,
+  region: AOI
+});
